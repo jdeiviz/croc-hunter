@@ -8,10 +8,10 @@
     "hostname": "croc-hunter.acs.az.estrado.io"
   },
   "container_repo": {
-    "host": "quay.io",
-    "master_acct": "lachie83",
-    "alt_acct": "lachie83",
-    "jenkins_creds_id": "quay_creds",
+    "host": "docker.io",
+    "master_acct": "ctolon22",
+    "alt_acct": "ctolon22",
+    "jenkins_creds_id": "docker_creds",
     "repo": "croc-hunter",
     "dockeremail": ".",
     "dockerfile": "./",
