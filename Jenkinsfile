@@ -105,6 +105,10 @@ volumes:[
         }
 
         // build and publish container
+        sh "docker build -t ${config.container_repo.host}/${config.container_repo.repo}"
+
+        
+
         pipeline.containerBuildPub(
             dockerfile: config.container_repo.dockerfile,
             host      : config.container_repo.host,
