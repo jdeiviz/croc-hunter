@@ -10,12 +10,14 @@ def pipeline = new io.estrado.Pipeline()
 podTemplate(label: 'jenkins-pipeline', serviceAccount: 'jenkins', containers: [
     containerTemplate(name: 'jnlp', image: 'lachlanevenson/jnlp-slave:3.10-1-alpine', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '300m', resourceRequestMemory: '256Mi', resourceLimitMemory: '512Mi'),
     containerTemplate(name: 'docker', image: 'docker:1.12.6', command: 'cat', ttyEnabled: true),
+    containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:latest', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'golang', image: 'golang:1.8.3', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.6.0', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.4.8', command: 'cat', ttyEnabled: true)
 ],
 volumes:[
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
+    secretVolume(secretName: 'reg-cred', mountPath: '/kaniko/.docker')
 ]){
 
   node ('jenkins-pipeline') {
@@ -90,12 +92,17 @@ volumes:[
             "ingress.hostname": config.app.hostname,
           ]
         )
-
       }
     }
 
     stage ('publish container') {
 
+      container('kaniko') {
+        def tag = image_tags_list.get(0)
+        sh "/kaniko/executor -d ${config.container_repo.host}/${acct}/${config.container_repo.repo}:${tag}"
+      }
+
+      /*
       container('docker') {
 
         // perform docker login to container registry as the docker-pipeline-plugin doesn't work with the next auth json format
@@ -105,6 +112,9 @@ volumes:[
         }
 
         // build and publish container
+
+
+        
 
         pipeline.containerBuildPub(
             dockerfile: config.container_repo.dockerfile,
@@ -117,17 +127,20 @@ volumes:[
         )
 
         // anchore image scanning configuration
-        /*
+        
         println "Add container image tags to anchore scanning list"
         
         def tag = image_tags_list.get(0)
         def imageLine = "${config.container_repo.host}/${acct}/${config.container_repo.repo}:${tag}" + ' ' + env.WORKSPACE + '/Dockerfile'
         writeFile file: 'anchore_images', text: imageLine
         anchore name: 'anchore_images', inputQueries: [[query: 'list-packages all'], [query: 'list-files all'], [query: 'cve-scan all'], [query: 'show-pkg-diffs base']]
-        */
+        
       }
+      */
+
 
     }
+    
 
     if (env.BRANCH_NAME =~ "PR-*" ) {
       stage ('deploy to k8s') {
