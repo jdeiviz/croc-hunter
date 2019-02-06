@@ -99,9 +99,9 @@ volumes:[
 
       container(name: 'kaniko', shell: '/busybox/sh') {
         def tag = image_tags_list.get(0)
-        sh '''#!/busybox/sh
+        sh """#!/busybox/sh
         /kaniko/executor -d ${config.container_repo.host}/${acct}/${config.container_repo.repo}:${tag}
-        '''
+        """
         
       }
 
