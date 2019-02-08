@@ -17,7 +17,7 @@ podTemplate(label: 'jenkins-pipeline', serviceAccount: 'jenkins', containers: [
 ],
 volumes:[
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
-    secretVolume(secretName: 'reg-cred', mountPath: '/root/.docker')
+    secretVolume(secretName: 'reg-cred', mountPath: '/kaniko/.docker')
 ]){
 
   node ('jenkins-pipeline') {
