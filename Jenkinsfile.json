@@ -5,6 +5,7 @@
     "cpu": "10m",
     "memory": "128Mi",
     "test": true,
+    "namespace": "devops-meetup",
     "hostname": "croc-hunter.acs.az.estrado.io"
   },
   "container_repo": {
