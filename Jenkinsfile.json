@@ -12,7 +12,7 @@
     "host": "registry.hub.docker.com",
     "master_acct": "ctolon22",
     "alt_acct": "ctolon22",
-    "jenkins_creds_id": "docker_creds",
+    "jenkins_creds_id": "dockercreds",
     "repo": "croc-hunter",
     "dockeremail": ".",
     "dockerfile": "./",
