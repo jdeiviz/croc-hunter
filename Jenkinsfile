@@ -103,7 +103,14 @@ volumes:[
                         usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
           
           creds = "\nUser: |${env.USERNAME}|\nPassword: \"${env.PASSWORD}\"\n"           
-          sh "docker login -u ${env.USERNAME} -p \\\"${env.PASSWORD}\\\" ${config.container_repo.host}"
+          sh ''' 
+            cat <<-EOF> /tmp/token.json
+            ${env.PASSWORD}
+            EOF
+            echo 'test'
+            cat /tmp.token.json
+            docker login -u ${env.USERNAME} -p "$(cat /tmp/token.json)" ${config.container_repo.host}
+          '''
         }
 
         println creds
