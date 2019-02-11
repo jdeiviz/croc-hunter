@@ -9,7 +9,7 @@
     "hostname": "croc-hunter.acs.az.estrado.io"
   },
   "container_repo": {
-    "host": "registry.hub.docker.com",
+    "host": "gcr.io",
     "master_acct": "ctolon22",
     "alt_acct": "ctolon22",
     "jenkins_creds_id": "dockercreds",
