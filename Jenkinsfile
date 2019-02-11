@@ -100,6 +100,8 @@ volumes:[
 
         // build and publish container
 
+        sh "cat /root/.docker/config.json"
+
         pipeline.containerBuildPub(
             dockerfile: config.container_repo.dockerfile,
             host      : config.container_repo.host,
