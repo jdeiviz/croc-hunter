@@ -102,7 +102,7 @@ volumes:[
         withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: config.container_repo.jenkins_creds_id,
                         usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
           
-          creds = "\nUser: |${env.USERNAME}|\nPassword: \""${env.PASSWORD}\""\n"           
+          creds = "\nUser: |${env.USERNAME}|\nPassword: \"${env.PASSWORD}\"\n"           
           //sh 'docker login -u ${env.USERNAME} -p "${env.PASSWORD}" ${config.container_repo.host}'
         }
 
