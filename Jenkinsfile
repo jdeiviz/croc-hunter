@@ -3,9 +3,9 @@
 // load pipeline functions
 // Requires pipeline-github-lib plugin to load library from github
 
-@Library('github.com/ctolon22/jenkins-pipeline@dev')
+@Library('github.com/jdeiviz/jenkins-pipeline@dev')
 
-def pipeline = new io.estrado.Pipeline()
+def pipeline = new jenkinsloveskubernetes.lib.Pipeline()
 
 podTemplate(label: 'jenkins-pipeline', serviceAccount: 'jenkins', containers: [
     containerTemplate(name: 'jnlp', image: 'lachlanevenson/jnlp-slave:3.10-1-alpine', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '300m', resourceRequestMemory: '256Mi', resourceLimitMemory: '512Mi'),
@@ -122,7 +122,7 @@ volumes:[
           pipeline.helmDeploy(
             dry_run       : false,
             name          : env.BRANCH_NAME.toLowerCase(),
-            namespace     : env.BRANCH_NAME.toLowerCase(),
+            namespace     : config.app.namespace,
             chart_dir     : chart_dir,
             set           : [
               "imageTag": image_tags_list.get(0),

@@ -5,13 +5,13 @@
     "cpu": "10m",
     "memory": "128Mi",
     "test": true,
-    "namespace": "devops-meetup",
-    "hostname": "croc-hunter.acs.az.estrado.io"
+    "namespace": "jenkinsloveskubernetes",
+    "hostname": "croc-hunter.35.242.172.141.sslip.io"
   },
   "container_repo": {
     "host": "gcr.io",
-    "master_acct": "ctolon22",
-    "alt_acct": "ctolon22",
+    "master_acct": "jenkinsloveskubernetes",
+    "alt_acct": "jenkinsloveskubernetes",
     "jenkins_creds_id": "dockercreds",
     "repo": "croc-hunter",
     "dockeremail": ".",
