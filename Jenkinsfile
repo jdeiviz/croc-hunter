@@ -15,6 +15,7 @@ podTemplate(label: 'jenkins-pipeline', serviceAccount: 'jenkins', containers: [
     containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.4.8', command: 'cat', ttyEnabled: true)
 ],
 volumes:[
+    secretVolume(secretName: 'reg-cred', mountPath: '/root/.docker')
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 ]){
 
@@ -96,26 +97,6 @@ volumes:[
     stage ('publish container') {
 
       container('docker') {
-
-        def creds
-        // perform docker login to container registry as the docker-pipeline-plugin doesn't work with the next auth json format
-        withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: config.container_repo.jenkins_creds_id,
-                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-          
-          creds = "\nUser: |${env.USERNAME}|\nPassword: \"${env.PASSWORD}\"\n"           
-        
-          sh '''
-docker login -u ${env.USERNAME} -p "$(cat <<-EOF
-${env.PASSWORD}
-EOF
-)" ${config.container_repo.host}
-          '''
-
-          //sh 'docker login -u ${env.USERNAME} -p "$(cat /tmp/token.json)" ${config.container_repo.host}'
-        }
-
-
-        println creds
 
         // build and publish container
 
