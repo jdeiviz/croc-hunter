@@ -102,6 +102,8 @@ volumes:[
 
         sh "cat /root/.docker/config.json"
 
+        sleep(20000)
+
         pipeline.containerBuildPub(
             dockerfile: config.container_repo.dockerfile,
             host      : config.container_repo.host,
