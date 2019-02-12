@@ -3,20 +3,19 @@
 // load pipeline functions
 // Requires pipeline-github-lib plugin to load library from github
 
-@Library('github.com/jdeiviz/jenkins-pipeline@dev')
+@Library('github.com/jdeiviz/jenkins-pipeline@more-secure')
 
 def pipeline = new jenkinsloveskubernetes.lib.Pipeline()
 
 podTemplate(label: 'jenkins-pipeline', serviceAccount: 'jenkins', containers: [
     containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:3.27-1-alpine', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '300m', resourceRequestMemory: '256Mi', resourceLimitMemory: '512Mi'),
-    containerTemplate(name: 'docker', image: 'docker:17.03.0', command: 'cat', ttyEnabled: true),
+    containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug', command: '/busybox/cat', ttyEnabled: true),
     containerTemplate(name: 'golang', image: 'golang:1.8.3', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.12.2', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.11.6', command: 'cat', ttyEnabled: true)
 ],
 volumes:[
-    secretVolume(secretName: 'reg-cred', mountPath: '/home/jenkins/.docker'),
-    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
+    secretVolume(secretName: 'reg-cred', mountPath: '/home/jenkins/.docker')
 ]){
 
   node ('jenkins-pipeline') {
@@ -77,27 +76,12 @@ volumes:[
         // run helm chart linter
         pipeline.helmLint(chart_dir)
 
-        // run dry-run helm chart installation
-        pipeline.helmDeploy(
-          dry_run       : true,
-          name          : config.app.name,
-          namespace     : config.app.namespace,
-          chart_dir     : chart_dir,
-          set           : [
-            "image": "${config.container_repo.host}/${acct}/${config.container_repo.repo}",
-            "imageTag": image_tags_list.get(0),
-            "replicas": config.app.replicas,
-            "cpu": config.app.cpu,
-            "memory": config.app.memory,
-            "ingress.hostname": config.app.hostname,
-          ]
-        )
       }
     }
 
     stage ('publish container') {
 
-      container('docker') {
+      container(name: 'kaniko', shell: '/busybox/sh') {
 
         // build and publish container
 
@@ -120,8 +104,7 @@ volumes:[
       stage ('deploy to k8s') {
         container('helm') {
           // Deploy using Helm chart
-          pipeline.helmDeploy(
-            dry_run       : false,
+          pipeline.helmTemplate(
             name          : env.BRANCH_NAME.toLowerCase(),
             namespace     : config.app.namespace,
             chart_dir     : chart_dir,
@@ -134,16 +117,13 @@ volumes:[
               "ingress.hostname": config.app.hostname,
             ]
           )
-
-          //  Run helm tests
-          if (config.app.test) {
-            pipeline.helmTest(
-              name        : env.BRANCH_NAME.toLowerCase()
-            )
-          }
-
+        }
+        container('kubectl') {
+          pipeline.kubectlDeploy(
+            name          : env.BRANCH_NAME.toLowerCase(),
+          )
           // delete test deployment
-          pipeline.helmDelete(
+          pipeline.kubectlDelete(
               name       : env.BRANCH_NAME.toLowerCase()
           )
         }
@@ -151,12 +131,11 @@ volumes:[
     }
 
     // deploy only the master branch
-    if (env.BRANCH_NAME == 'master') {
+    if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'more-secure') {
       stage ('deploy to k8s') {
         container('helm') {
           // Deploy using Helm chart
-          pipeline.helmDeploy(
-            dry_run       : false,
+          pipeline.helmTemplate(
             name          : config.app.name,
             namespace     : config.app.namespace,
             chart_dir     : chart_dir,
@@ -169,13 +148,11 @@ volumes:[
               "ingress.hostname": config.app.hostname,
             ]
           )
-          
-          //  Run helm tests
-          if (config.app.test) {
-            pipeline.helmTest(
-              name          : config.app.name
-            )
-          }
+        }
+        container('kubectl') {
+          pipeline.kubectlDeploy(
+            name          : env.BRANCH_NAME.toLowerCase(),
+          )
         }
       }
     }
