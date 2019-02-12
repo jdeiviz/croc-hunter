@@ -84,6 +84,7 @@ volumes:[
           namespace     : config.app.namespace,
           chart_dir     : chart_dir,
           set           : [
+            "image": "${config.container_repo.host}/${acct}/${config.container_repo.repo}"
             "imageTag": image_tags_list.get(0),
             "replicas": config.app.replicas,
             "cpu": config.app.cpu,
@@ -125,6 +126,7 @@ volumes:[
             namespace     : config.app.namespace,
             chart_dir     : chart_dir,
             set           : [
+              "image": "${config.container_repo.host}/${acct}/${config.container_repo.repo}"
               "imageTag": image_tags_list.get(0),
               "replicas": config.app.replicas,
               "cpu": config.app.cpu,
@@ -159,6 +161,7 @@ volumes:[
             namespace     : config.app.namespace,
             chart_dir     : chart_dir,
             set           : [
+              "image": "${config.container_repo.host}/${acct}/${config.container_repo.repo}"
               "imageTag": image_tags_list.get(0),
               "replicas": config.app.replicas,
               "cpu": config.app.cpu,
