@@ -6,7 +6,7 @@
     "memory": "128Mi",
     "test": true,
     "namespace": "jenkinsloveskubernetes",
-    "hostname": "croc-hunter.35.242.172.141.sslip.io"
+    "hostname": "croc-hunter.35.242.172.141.nip.io"
   },
   "container_repo": {
     "host": "gcr.io",
